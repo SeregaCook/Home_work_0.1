@@ -1,28 +1,63 @@
 import tkinter as tk
+from tkinter import messagebox
 
-# Функция, которая срабатывает при нажатии на кнопку
-def click():
-    global score
-    score += 1
-    # Обновляем текст на метке
-    label_score.config(text=f"Счёт: {score}")
+def on_click(button_text):
+    """Обработка нажатия кнопок."""
+    current_text = entry.get()
+    
+    if button_text == "=":
+        try:
+            # eval() вычисляет строку как математическое выражение
+            result = eval(current_text)
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, str(result))
+        except Exception:
+            messagebox.showerror("Ошибка", "Некорректное выражение")
+            entry.delete(0, tk.END)
+    
+    elif button_text == "C":
+        entry.delete(0, tk.END)
+        
+    else:
+        # Добавляем текст нажатой кнопки в поле ввода
+        entry.insert(tk.END, button_text)
 
-# Создаем главное окно
-window = tk.Tk()
-window.title("Мой первый кликер")
-window.geometry("300x200")
+# Создание окна
+root = tk.Tk()
+root.title("Python Калькулятор")
+root.geometry("300x400")
 
-# Переменная для хранения очков
-score = 0
+# Поле ввода (Entry)
+entry = tk.Entry(root, font=("Arial", 20), borderwidth=5, relief="flat", justify="right")
+entry.grid(row=0, column=0, columnspan=4, padx=10, pady=20, sticky="nsew")
 
-# Создаем метку для отображения счета
-label_score = tk.Label(window, text=f"Счёт: {score}", font=("Arial", 24))
-label_score.pack(pady=20)
+# Список кнопок
+buttons = [
+    '7', '8', '9', '/',
+    '4', '5', '6', '*',
+    '1', '2', '3', '-',
+    'C', '0', '=', '+'
+]
 
-# Создаем кнопку кликера
-btn_click = tk.Button(window, text="Кликни меня!", command=click, 
-                      width=15, height=2, bg="lightblue")
-btn_click.pack(pady=10)
+# Создание и размещение кнопок в сетке
+row_val = 1
+col_val = 0
 
-# Запуск цикла обработки событий
-window.mainloop()
+for button in buttons:
+    # Используем lambda, чтобы передать текст кнопки в функцию
+    action = lambda x=button: on_click(x)
+    tk.Button(root, text=button, width=5, height=2, font=("Arial", 14),
+              command=action).grid(row=row_val, column=col_val, padx=5, pady=5, sticky="nsew")
+    
+    col_val += 1
+    if col_val > 3:
+        col_val = 0
+        row_val += 1
+
+# Настройка растягивания колонок и строк
+for i in range(4):
+    root.grid_columnconfigure(i, weight=1)
+for i in range(1, 5):
+    root.grid_rowconfigure(i, weight=1)
+
+root.mainloop()
